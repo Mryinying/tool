@@ -1,0 +1,4 @@
+lsof -i:5672
+rabbitmqctl list_vhosts 
+rabbitmqctl status
+rabbitmq-server start &

@@ -1,0 +1,50 @@
+可靠性投递
+
+	幂等性保障：  
+		避免重复消费
+		
+		操作：1. 唯一id +指纹码 数据库主键去重
+			select count(1) from Table where id =  唯一id+指纹码 
+		
+			优点 实现简单 
+			缺点 数据库有写入瓶颈 ---->跟进id进行分库分表 进行算法路由
+			
+			2.利用redis set操作 的原子性（单点登录 session共享...）
+			
+	comfirm确认消息实现：
+		
+		在channel上开启确认模式 =====》channel.confirmSelect();
+
+	return消息机制：
+	
+	消费端限流：
+		qos（服务质量保证）功能  ，非自动确认消息的前提下，如果消息未被确认 不进行消费新的消息   ====》basicQos(int prefetchSize, int prefetchCount, boolean global)
+		prefetchSize：0 
+		prefetchCount：会告诉RabbitMQ不要同时给一个消费者推送多于N个消息，即一旦有N个消息还没有ack，则该consumer将block掉，直到有消息ack
+		global：true\false 是否将上面设置应用于channel，简单点说，就是上面限制是channel级别的还是consumer级别
+		备注：据说prefetchSize 和global这两项，rabbitmq没有实现，暂且不研究
+	
+	消费端的手工ack和nack:
+	
+	TTL队列/消息（time to live 生存时间）：
+		.expiration("10000") 10s
+		
+	死信队列（DLX dead-letter-exchange）：
+		过期  requeue 队列达到最大长度 消息不可达 ====>路由到指定死信交换机
+		
+		
+整合应用：
+	
+	Spring AMQP:
+	
+	SimpleMessageListenerContainer（简单消息监听容器）：
+		设置事务    确认模式    监听器    
+		进行动态设置
+	
+	MessageListenerAdapter（） 
+		
+		
+	
+		
+		
+	
